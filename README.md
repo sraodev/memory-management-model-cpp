@@ -1,4 +1,5 @@
 # Memory Management Model
+```
 ****** Welcome to M3 ******!
 
 Enter memory size for M3 (bytes) : 10
@@ -27,3 +28,4 @@ r - read (same as write, will be readed as unsigned integer)
 q - quit
 
 Enter action (h -> help) :
+```
