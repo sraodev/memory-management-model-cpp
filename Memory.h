@@ -27,7 +27,7 @@ void defragMemory();
  * @brief printMemory
  * Prints memory state
  */
-void PrintMemory();
+void printMemory();
 
 int initMemory(int n, size_t szPage);
 int mallocBlock(size_t blockSize);

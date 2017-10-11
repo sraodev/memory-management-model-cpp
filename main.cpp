@@ -7,91 +7,93 @@
 //
 
 #include <iostream>
-#include "memory.h"
+#include "Memory.h"
 
-void Usage(){
-    std::cout << ("p - print memory\n");
-    std::cout << ("m - malloc\n");
-    std::cout << ("f - free\n");
-    std::cout << ("w - write (as unsigned integer, will will be scliced bitly by entered size)\n");
-    std::cout << ("r - read (same as write, will be readed as unsigned integer)\n");
-    std::cout << ("q - quit\n\n");
+void usage(){
+    printf("p - Get memory status\n");
+    printf("m - Allocate memory block\n");
+    printf("f - Free allocated memory block\n");
+    printf("w - Write to memory block\n");
+    printf("r - Read from memory block\n");
+    printf("d - Defragment memory block\n");
+    printf("q - Quit\n\n");
 }
 
 int main() {
-    int rStatus = 0;
     VA va;
-    int buff;
-    size_t memorySize;
+    int rStatus = 0;
+    char *voidBuffer;
+    size_t memorySize = 0;
     size_t size;
     char action[10];
-    std::cout << "****** Welcome to M3 ******!\n\n";
-    std::cout << "Enter memory size for M3 (bytes) : "; std::cin >> memorySize;
+    printf("****** Welcome to M3 ******!\n\n");
+    printf("Enter memory size for M3 (bytes) : "); scanf("%zd",&memorySize);
     initMemory(1, memorySize);
-    PrintMemory();
-
+    printMemory();
     while (action[0] != 'q') {
-        std::cout << "Enter action (h -> help) : "; std::cin >> action;
+        printf("Enter action (h -> help) : "); scanf("%s", action);
         switch (action[0]) {
             case 'q':
                 break;
             case 'm':
-                std::cout << "Malloc: Enter size : "; std::cin >> size;
+                printf("Malloc: Enter size (bytes) : "); scanf("%zd", &size);
                 rStatus = mallocBlock(size);
-                PrintMemory();
+                printMemory();
                 if(rStatus == -1)
-                    std::cout << ("Invalid params\n");
+                    printf("Invalid params\n");
                 if(rStatus == -2)
-                    std::cout << ("Not enough memory\n");
+                    printf("Not enough memory\n");
                 if(rStatus == 1)
-                    std::cout << ("Unknown error\n");
+                    printf("Unknown error\n");
                 break;
             case 'f':
-                std::cout << "Free: Enter VA : "; std::cin >> va;
+                printf("Free: Enter VA : "); scanf("%d", &va);
                 rStatus = freeBlock(va);
-                PrintMemory();
+                printMemory();
                 if(rStatus == -1)
-                    std::cout << ("Invalid params\n");
+                    printf("Invalid VA\n");
                 if(rStatus == 1)
-                    std::cout << ("Unknown error\n");
+                    printf("Unknown error\n");
                 break;
             case 'w':
-                printf("write: enter addr>> ");  scanf("%d", &va);
-                printf("write: enter size>> ");  scanf("%ld", &size);
-                printf("write: enter data>> ");scanf("%d", &buff);
-                rStatus = writeToBlock(va, &buff, size);
-                PrintMemory();
+                printf("writeToBlock: Enter VA: "); scanf("%d", &va);
+                printf("writeToBlock: Enter size (bytes): "); scanf("%zd", &size);
+                voidBuffer = (char*)malloc(size);
+                printf("writeToBlock: Enter data: "); scanf("%s", voidBuffer);
+                rStatus = writeToBlock(va, &voidBuffer, size);
+                printMemory();
                 if(rStatus == -1)
-                    std::cout << "invalid params\n";
+                    printf("Invalid params\n");
                 if(rStatus == -2)
-                    std::cout << "trying to access memory outside the block\n";
+                    printf("trying to access memory outside the block\n");
                 if(rStatus == 1)
-                    std::cout << ("unknown error\n");
-                
+                    printf("Unknown error\n");
                 break;
             case 'r':
-                std::cout << "read: enter addr>>";  std::cin >> va;
-                std::cout << "read: enter size>>"; std::cin >> size;
-                rStatus = readFromBlock(va, &buff, size);
-                PrintMemory();
+                printf("readFromBlock: Enter addr: ");  scanf("%d", &va);
+                std::cout << "readFromBlock: Enter size (bytes): "; scanf("%zd", &size);
+                rStatus = readFromBlock(va, &voidBuffer, size);
+                printMemory();
                 if(rStatus == -1)
-                    std::cout << "invalid params\n";
+                    printf("Invalid params\n");
                 if(rStatus == -2)
-                    std::cout << "trying to access memory outside the block\n";
+                    printf("trying to access memory outside the block\n");
                 if(rStatus == 1)
-                    std::cout << "unknown error\n";
+                    printf("Unknown error\n");
                 if(rStatus == 0)
-                    std::cout << "read rStatus:%d" << buff << std::endl;
+                    printf("Buffer value :%s\n", voidBuffer);
                 break;
-
             case 'h':
-                Usage();
+                usage();
+                break;
+            case 'd':
+                defragMemory();
                 break;
             default:
-                PrintMemory();
+                printMemory();
                 break;
         }
     }
-    std::cout << "\n****** M3 Cleaned Up ******!\n";
+    printf("\n****** M3 Cleaned Up ******!\n");
     return 0;
 }

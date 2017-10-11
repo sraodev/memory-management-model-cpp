@@ -11,7 +11,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <cmath>
-#include "memory.h"
+#include "Memory.h"
 
 void *pMemory;
 void *pMemoryEnd;
@@ -26,6 +26,14 @@ unsigned createMask(unsigned from, unsigned to){
         mask |= 1 << i;
     }
     return mask;
+}
+
+size_t getAllocMemory(){
+    return allocMemory;
+}
+
+size_t getAvailMemory(){
+    return availMemory;
 }
 
 /**
@@ -192,7 +200,7 @@ int writeToBlock(VA va, void *pBuffer, size_t bufferSize){
     if (bufferSize + (va - header.left) > header.size) {
         return -2;
     }
-    *((unsigned*)destBuffer) = *((unsigned*)block) + getHeaderSize() + (va - header.left);
+    destBuffer = static_cast<uint8_t*>(block) + getHeaderSize() + (va - header.left);
     memcpy(destBuffer, pBuffer, bufferSize);
     return 0;
 }
@@ -207,7 +215,7 @@ int readFromBlock(VA va, void *pBuffer, size_t bufferSize){
     if (bufferSize + (va - header.left) > header.size) {
         return -2;
     }
-    *((unsigned*)srcBlock) = *((unsigned*)block) + getHeaderSize() + (va - header.left);
+    srcBlock = static_cast<uint8_t*>(block) + getHeaderSize() + (va - header.left);
     memcpy(pBuffer, srcBlock, bufferSize);
     return 0;
 }
@@ -242,7 +250,7 @@ int mallocBlock(size_t blockSize){
 
 int freeBlock(VA va){
     void *block = getByVA(va);
-    if (!block) {
+    if (!block || !va) {
         return -1;
     }
     BlockHeader blockHeader = readHeader(block);
@@ -283,14 +291,14 @@ int initMemory(int n, size_t pageSize){
  * @brief printMemory
  * Prints memory state
  */
-void PrintMemory(){
+void printMemory(){
     if (pMemory) {
         void* block = pMemory;
         printf("\n*---------------------------------------------------*\n");
         printf("|                    Memory Status                \t|\n");
         printf("*---------------------------------------------------*\n");
         printf("| Total     Memory\t\t\t:   %8lu\tbytes\t|\n", totalMemory);
-        printf("| Allocated Memory\t\t\t:   %8lu\tbytes\t|\n", mallocBlock);
+        printf("| Allocated Memory\t\t\t:   %8lu\tbytes\t|\n", allocMemory);
         printf("| Available Memory\t\t\t:   %8lu\tbytes\t|\n", (availMemory !=0 ? availMemory - getHeaderSize() : availMemory));
         printf("| Header    Size\t\t\t:   %8lu\tbytes\t|\n", getHeaderSize());
         printf("*---------------------------------------------------*\n");
